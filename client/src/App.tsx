@@ -20,6 +20,7 @@ interface AppProps {
 export const App: React.FC = () => {
   const [data, setData] = useState<AppProps[]>([]);
   const [input, setInput] = useState("");
+  const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
     axios
@@ -28,7 +29,7 @@ export const App: React.FC = () => {
         setData(res.data);
       })
       .catch((err) => console.log(err));
-  }, [input]);
+  }, [isChanged]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -39,6 +40,10 @@ export const App: React.FC = () => {
     await axios
       .post(URL, { name: input, isComplete: false })
       .catch((e) => console.log(e));
+  };
+
+  const handleDelete = async (id: number) => {
+    await axios.delete(`${URL}/${id}`).catch((e) => console.log(e));
   };
 
   return (
@@ -54,6 +59,7 @@ export const App: React.FC = () => {
         onClick={() => {
           handleClick();
           setInput("");
+          setIsChanged(!isChanged);
         }}
         variant="contained"
       >
@@ -66,7 +72,13 @@ export const App: React.FC = () => {
             {data.map((d) => (
               <ListItem key={d.id}>
                 {d.name}
-                <Checkbox defaultChecked={d.isComplete} />
+                <Checkbox
+                  onChange={() => {
+                    handleDelete(d.id);
+                    setIsChanged(!isChanged);
+                  }}
+                  value={d.isComplete}
+                />
               </ListItem>
             ))}
           </List>

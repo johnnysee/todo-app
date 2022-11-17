@@ -25,20 +25,49 @@ namespace WebApi.Controllers
 
 
 		// GET: api/TodoItems/5
+		[HttpGet("{id}")]
+		public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
+		{
+			var item = await _context.TodoItems.FindAsync(id);
 
-		// PUT: api/TodoItems/5
-		[HttpPost]
+			if (item == null)
+			{
+				return NotFound();
+			}
+
+			return item;
+		}
+
+        // PUT: api/TodoItems/5
+
+        // POST: api/TodoItems
+        [HttpPost]
 		public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
 		{
 			_context.Add(todoItem);
 			await _context.SaveChangesAsync();
 
+			//return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
 			return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
 		}
 
-		// POST: api/TodoItems
-
 		// DELETE: api/TodoItems/5
-	}
+		[HttpDelete("{id}")]
+		public async Task<ActionResult> DeleteTodoItem(long id)
+		{
+			var item = await _context.TodoItems.FindAsync(id);
+
+			if (item == null)
+			{
+				return NotFound();
+			}
+
+			_context.TodoItems.Remove(item);
+
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+    }
 }
 
